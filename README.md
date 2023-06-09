@@ -8,7 +8,7 @@ analyses present in the article Exact Bayesian Inference for Stochastic
 Epidemic Models via Uniformly Ergodic Block Sampling by R. Morsomme and
 J. Xu. The `R` package `PDSIR` contains the functions to run the
 sampling algorithm introduced in the article, `PDSIR-article` is a
-lightweight project for reproducibility.
+lightweight project that accompanies the article mentioned above.
 
 The `R` scripts are located in the folder `R`. The five scripts
 `analysis-*.R` run Markov chain Monte Carlo samplers whose draws are
