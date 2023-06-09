@@ -1,2 +1,0 @@
-/var/spool/slurmd/job29448375/slurm_script: line 10: Export: command not found
-slurmstepd: error: *** JOB 29448316 ON dcc-statdept-01 CANCELLED AT 2023-04-08T21:32:35 ***
