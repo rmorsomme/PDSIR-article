@@ -13,7 +13,7 @@ in the article.
 The scripts are located in the folder `R`. The five scripts
 `analysis-*.R` run Markov chain Monte Carlo samplers whose draws are
 saved in  `mcmc-draws`. The script `make_figures.R` makes the
-various figures, which are saved in `figures` and computes
+various figures, which are saved in `figures`, and computes
 the summary statistics found in the article.
 
 For convenience, `.sh` scripts for running the scripts on a cluster via
