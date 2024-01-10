@@ -14,10 +14,25 @@ rm(list=ls())
 theme_set(theme_bw())
 theme_update(text = element_text(size = 25))
 
-default(ggsave) <- list(
-   path = "figures",
-   width = 1.61803, height = 1, scale = 3.5
+
+save_figures <- function(name, path = "figures", scale){
+
+   # golden ratio
+   phi = (sqrt(5)+1)/2
+
+   # save .jpg (for presentation)
+   ggsave(
+      paste0(name, ".jpg"), path = path,
+      scale = scale, width = phi, height = 1, units = "cm"
    )
+
+   # save .eps (for publication)
+   ggsave(
+      paste0(name, ".eps"), path = path,
+      device = "eps", dpi = "retina",
+      scale = scale, width = phi, height = 1, units = "cm"
+   )
+}
 
 
 #
@@ -28,7 +43,8 @@ load("mcmc-draws/PoC.RDATA")
 print(out$run_time)    # run time in seconds
 print(out$rate_accept) # acceptance rate in the Metropolis-Hastings step for the latent data
 
-ggsave("trajectories.jpeg", g_trajectories + labs(x="Time"))
+g_trajectories + labs(x="Time", y="Size of\ncompartments") + theme(legend.position="none",text = element_text(size = 25))
+save_figures("trajectories", scale = 7.5)
 
 
 
@@ -46,7 +62,7 @@ THETA %>%
    geom_hline(yintercept = theta$lambda, col = "red", linewidth = 1.5, linetype = 2) +
    labs(x = "Iteration (in 1,000)", y = expression(lambda)) +
    scale_x_continuous(breaks=c(0,10,20))
-ggsave("traceplot_transient.jpeg")
+save_figures("traceplot_transient", scale = 7.5)
 
 THETA %>%
    filter(iteration > burnin) %>%
@@ -56,7 +72,7 @@ THETA %>%
    geom_hline(yintercept = theta$lambda, col = "red", linewidth = 1.5, linetype = 2) +
    labs(x = "Iteration (in 1,000)", y = expression(lambda)) +
    scale_x_continuous(breaks=c(0,500,1e3))
-ggsave("traceplot_recurrent.jpeg")
+save_figures("traceplot_recurrent", scale = 7.5)
 
 
 #
@@ -100,7 +116,7 @@ results_all %>%
    expand_limits(y=0) +
    theme(legend.position = "none") +
    theme(axis.title.y = ggplot2::element_text(size = 23))
-ggsave("rho_time.jpeg")
+save_figures("rho_time", scale = 10)
 
 results_all %>%
    ggplot(aes(rho, accept_rate , linetype = factor(S0))) +
@@ -108,7 +124,7 @@ results_all %>%
    labs(x = expression(rho), y = "Acceptance rate") +
    expand_limits(y=0) +
    theme(legend.position = "none")
-ggsave("rho_accept.jpeg")
+save_figures("rho_accept", scale = 10)
 
 results_all %>%
    ggplot(aes(rho, log(ESSsec_beta), linetype = factor(S0))) +
@@ -118,20 +134,19 @@ results_all %>%
 #   facet_grid(S0~., labeller = label_both, scales = "free")
    theme(legend.position = "none") +
    theme(axis.title.y = ggplot2::element_text(size = 21))
-ggsave("rho_ess.jpeg")
-
+save_figures("rho_ess", scale = 10)
 
 #
 # Ebola ####
 load("mcmc-draws/ebola.RDATA")
 
-sum(ebola_gueckedou$I_k)
+sum(ebola_gueckedou$I_k) # total number of observed infections
 
 tibble(I_k = ebola_gueckedou$I_k, time = ebola_gueckedou$dates) %>%
    ggplot(aes(time, I_k)) +
    geom_col() +
    labs(x = "Time (weeks)", y = "Count of\ninfections")
-ggsave("ebola_Ik.jpeg")
+save_figures("ebola_Ik", scale = 10)
 
 
 print(out$run_time / 3600) # hours
@@ -153,13 +168,13 @@ THETA %>%
    ggplot(aes(x = EIP)) +
    geom_histogram(aes(y = after_stat(density))) +
    labs(x = "Expected duration\nof infection (days)", y = "Density")
-ggsave("ebola_histogram.jpeg")
+save_figures("ebola_histogram", scale = 10)
 
 THETA %>%
    ggplot(aes(x = iteration_1000, y = EIP)) +
    geom_line() +
    labs(x = "Iteration (in 1,000)", y = "Expected duration\nof infection (days)")
-ggsave("ebola_traceplot.jpeg")
+save_figures("ebola_traceplot", scale = 10)
 
 
 #
@@ -189,7 +204,7 @@ THETA_single_site %>%
    geom_line() +
    labs(x = "Iteration (in 1,000)", y = expression(beta)) +
    scale_x_continuous(breaks=c(0,500,1000))
-ggsave("single_site_traceplot.jpeg")
+save_figures("single_site_traceplot", scale = 8)
 
 THETA_block %>%
    mutate(iteration_1000 = iteration / 1e3) %>%
@@ -197,7 +212,7 @@ THETA_block %>%
    geom_line() +
    labs(x = "Iteration (in 1,000)", y = expression(beta)) +
    scale_x_continuous(breaks=c(0,500,1000))
-ggsave("block_traceplot.jpeg")
+save_figures("block_traceplot", scale =  8)
 
 ## acf
 n_lag <- 50
@@ -208,7 +223,7 @@ tibble(
    ggplot(aes(lag, acf)) +
    geom_col(width = 0.25) +
    labs(x = "Lags", y = "Auto-correlation\nfunction")
-ggsave("block_acf.jpeg")
+save_figures("block_acf", scale = 8)
 
 tibble(
    acf = acf(THETA_single_site$beta, lag.max = n_lag)$acf %>% as.vector(),
@@ -217,7 +232,7 @@ tibble(
    ggplot(aes(lag, acf)) +
    geom_col(width = 0.25) +
    labs(x = "Lags", y = "Auto-correlation\nfunction")
-ggsave("single_site_acf.jpeg")
+save_figures("single_site_acf", scale = 8)
 
 ## ESS/sec
 THETA_single_site %>%
@@ -276,7 +291,7 @@ df_SIR %>%
    geom_point(data = df_removals  , y =  0.075, size = 3, shape = 15) +
    expand_limits(x = 0, y = 0) +
    labs(x = "Time", y = expression("Infection rate "*mu))
-ggsave("mu.jpeg", scale = 5)
+save_figures("mu", scale = 15)
 
 
 #
@@ -323,7 +338,7 @@ for(k in c(5, 10, 50, 1e3)){
       theme(legend.position = "none") +
       labs(y = "Size of\ncompartment")
 
-   ggsave(paste0("comparison_k=", k, ".jpeg"), width = 1.5 * 1.61803, scale = 3)
+   save_figures(paste0("comparison_k=", k), scale = 10)
 
 }
 
@@ -357,7 +372,7 @@ ggplot(df1, aes(x = x, y = Density)) +
    scale_color_discrete(name = expression(Parameter~alpha)) +
    geom_vline(xintercept = xb) +
    annotate(geom = "text", x = xb + 0.5, y = 0.18, label = expression(x[b]), size = 6)
-ggsave("gamma1a.jpeg")
+save_figures("gamma1a", scale = 10)
 
 
 # Gamma 2 (alpha=0, beta in (0,B))
@@ -368,11 +383,11 @@ df2 <- expand.grid(alpha = 0, beta = seq(0, B, by = 0.25), x = x) %>%
    unnest(Density)
 
 ggplot(df2, aes(x = x, y = Density)) +
-   geom_line(aes(col = as.factor(beta)), size = 1) +
+   geom_line(aes(col = as.factor(beta)), linewidth = 1) +
    scale_color_discrete(name = expression(Parameter~beta)) +
    geom_vline(xintercept = xa) +
    annotate(geom = "text", x = xa + 0.5, y = 0.525, label = expression(x[a]), size = 6)
-ggsave("gamma1b.jpeg")
+save_figures("gamma1b", scale = 10)
 
 
 # Gamma joint (alpha in {0,1}, beta in {0,1})
@@ -383,7 +398,7 @@ df3 <- expand.grid(alpha = c(0,A), beta = c(0,B), x = x) %>%
    mutate(code = paste0(alpha, beta))
 
 ggplot(df3, aes(x = x, y = Density)) +
-   geom_line(aes(col = code), size = 1) +
+   geom_line(aes(col = code), linewidth = 1) +
    scale_color_discrete(
       name = substitute(paste("(", alpha, ", ", beta, ")")),
       breaks = c("00", "01", "10", "11"),
@@ -394,4 +409,4 @@ ggplot(df3, aes(x = x, y = Density)) +
    annotate(geom = "text", x = xb + 0.35, y = 0.525, label = expression(x[b]), size = 6) +
    annotate(geom = "text", x = xA + 0.35, y = 0.525, label = expression(x[A]), size = 6) +
    annotate(geom = "text", x = xB + 0.35, y = 0.525, label = expression(x[B]), size = 6)
-ggsave("gamma2.jpeg")
+save_figures("gamma2", scale = 10)
