@@ -4,8 +4,7 @@
 ## PDSIR-article – a repository for reproducibility
 
 This repository provides `R` scripts for reproducing the result 
-of the article Exact Bayesian Inference for Stochastic
-Epidemic Models via Uniformly Ergodic Block Sampling by R. Morsomme and
+of the article Exact Bayesian Inference for Partially Observed Stochastic Epidemic Models via Uniformly Ergodic Block Sampling by R. Morsomme and
 J. Xu. The `R` package [PDSIR](https://github.com/rmorsomme/PDSIR) 
 contains the functions for running the sampling algorithm introduced
 in the article.
